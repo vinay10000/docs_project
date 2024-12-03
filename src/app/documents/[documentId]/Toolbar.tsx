@@ -4,14 +4,117 @@ import { cn } from "@/lib/utils";
 import { type ColorResult, SketchPicker } from 'react-color'
 import { type Level } from "@tiptap/extension-heading"
 import { useEditorStore } from "@/store/use-editor-store";
-import { AlignCenter, AlignJustify, AlignLeftIcon, AlignRight, BoldIcon, ChevronDownIcon, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, ListIcon, ListOrderedIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SearchIcon, SpellCheckIcon, UnderlineIcon, Undo2Icon, UploadIcon } from "lucide-react";
+import { AlignCenter, AlignJustify, AlignLeftIcon, AlignRight, BoldIcon, ChevronDownIcon, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, ListCollapseIcon, ListIcon, ListOrderedIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, MinusIcon, PlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SearchIcon, SpellCheckIcon, UnderlineIcon, Undo2Icon, UploadIcon } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+const LineHeightButton = () => {
+    const { editor } = useEditorStore()
+    const lineHeights = [
+        {
+            label: "Default",
+            value: "Normal",
+        },
+        {
+            label: "Single",
+            value: "1",
+        },
+        {
+            label: "1.15",
+            value: "1.15",
+        },
+        {
+            label: "1.5",
+            value: "1.5",
+        },
+        {
+            label: "Double",
+            value: "2",
+        },
+        
+    ]
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className={cn("h-7 min-w-7 shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
+                    <div className="flex items-center gap-x-2">
+                        <ListCollapseIcon className="size-4" />
+                    </div>
+                    <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-50" />
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="p-1 flex flex-col gap-y-1">
+                {lineHeights.map(({ label, value }) => (
+                    <button key={value} onClick={() => editor?.chain().focus().setLineHeight(value).run()} className={cn("flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80", editor?.getAttributes("paragraph").lineHeight === value && "bg-neutral-200/80")}>
+                        <span className="text-sm">{label}</span>
+                    </button>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
+const FontSizeButton = () => {
+    const { editor } = useEditorStore()
+    const currentFontSize = editor?.getAttributes("textStyle").fontSize
+        ? editor?.getAttributes("textStyle").fontSize.replace("px", "") : "16"
+    const [fontSize, setFontSize] = useState(currentFontSize)
+    const [inputValue, setInputValue] = useState(fontSize)
+    const [isEditing, setIsEditing] = useState(false)
+    const updateFontSize = (newSize: string) => {
+        const size = parseInt(newSize)
+        if (!isNaN(size) && size > 0) {
+            editor?.chain().focus().setFontSize(`${size}px`).run()
+            setFontSize(newSize)
+            setInputValue(newSize)
+            setIsEditing(false)
+        }
+    }
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputValue(e.target.value)
+    }
+    const handleInputBlur = () => {
+        updateFontSize(inputValue);
+    }
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            updateFontSize(inputValue);
+            editor?.commands.focus()
+        }
+    }
+    const increment = () => {
+        const newSize = parseInt(fontSize) + 1
+        updateFontSize(newSize.toString())
+    }
+    const decrement = () => {
+        const newSize = parseInt(fontSize) - 1
+        if (newSize > 0) {
+            updateFontSize(newSize.toString())
+        }
 
+    }
+    return (
+        <div className="flex items-center gap-0.5">
+            <button onClick={decrement} className={cn("h-7 w-7 shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2")}>
+                <MinusIcon className="size-4" />
+            </button>
+
+            {isEditing ? (
+                <input type="text" value={inputValue} onChange={handleInputChange} onBlur={handleInputBlur} onKeyDown={handleKeyDown} className={cn("h-7 w-10 text-sm  rounded-sm border border-neutral-400 text-center bg-transparent focus:outline-none focus:ring-0 px-2")} />
+            ) : (
+                <button onClick={() => { setIsEditing(true); setFontSize(currentFontSize); }} className={cn("h-7 w-10 text-sm  rounded-sm border border-neutral-400 text-center bg-transparent cursor-text px-2")}>
+                    {currentFontSize}
+                </button>
+            )}
+            <button onClick={increment} className={cn("h-7 w-7 shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2")}>
+                <PlusIcon className="size-4" />
+            </button>
+        </div>
+    )
+}
 const ListButton = () => {
     const { editor } = useEditorStore()
     const lists = [
@@ -27,21 +130,21 @@ const ListButton = () => {
             isActive: () => editor?.isActive("orderedList"),
             onClick: () => editor?.chain().focus().toggleOrderedList().run()
         },
-        
-    ] 
+
+    ]
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button className={cn("h-7 w-[70px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
+                <button className={cn("h-7 min-w-7 shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
                     <div className="flex items-center gap-x-2">
                         <ListIcon className="size-4" />
                     </div>
-                    <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-50" />
+                    <ChevronDownIcon className="size-4" />
                 </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="p-1 flex flex-col gap-y-1">
-                {lists.map(({ label, icon:Icon,onClick,isActive }) => (
-                    <button key={label} onClick={onClick} className={cn("flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80",isActive() && "bg-neutral-200/80" )}>
+                {lists.map(({ label, icon: Icon, onClick, isActive }) => (
+                    <button key={label} onClick={onClick} className={cn("flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80", isActive() && "bg-neutral-200/80")}>
                         <Icon className="size-4" />
                         <span className="text-sm">{label}</span>
                     </button>
@@ -56,28 +159,28 @@ const AlignButton = () => {
         {
             label: "Align Left",
             value: "left",
-            icon : AlignLeftIcon
+            icon: AlignLeftIcon
         },
         {
             label: "Align Center",
             value: "center",
-            icon : AlignCenter
+            icon: AlignCenter
         },
         {
             label: "Align Right",
             value: "right",
-            icon : AlignRight
+            icon: AlignRight
         },
         {
             label: "Align Justify",
             value: "justify",
-            icon : AlignJustify
+            icon: AlignJustify
         },
     ]
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button className={cn("h-7 w-[70px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
+                <button className={cn("h-7 min-w-7 shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
                     <div className="flex items-center gap-x-2">
                         <AlignLeftIcon className="size-4" />
                     </div>
@@ -85,8 +188,8 @@ const AlignButton = () => {
                 </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="p-1 flex flex-col gap-y-1">
-                {alignments.map(({ label, value, icon:Icon }) => (
-                    <button key={value} onClick={() => editor?.chain().focus().setTextAlign(value).run()} className={cn("flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80",editor?.isActive({TextAlign:value}) && "bg-neutral-200/80" )}>
+                {alignments.map(({ label, value, icon: Icon }) => (
+                    <button key={value} onClick={() => editor?.chain().focus().setTextAlign(value).run()} className={cn("flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80", editor?.isActive({ TextAlign: value }) && "bg-neutral-200/80")}>
                         <Icon className="size-4" />
                         <span className="text-sm">{label}</span>
                     </button>
@@ -128,7 +231,7 @@ const ImageButton = () => {
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button className={cn("h-7 w-[70px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
+                    <button className={cn("h-7 min-w-7 shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
                         <ImageIcon className="size-4" />
                         <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-50" />
                     </button>
@@ -169,7 +272,7 @@ const LinkButton = () => {
     return (
         <DropdownMenu onOpenChange={(open) => { if (open) { setValue(editor?.getAttributes("link").href || "") } }}>
             <DropdownMenuTrigger asChild>
-                <button className={cn("h-7 w-[70px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
+                <button className={cn("h-7 min-w-7 shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
                     <div className="flex items-center gap-x-2">
                         <Link2Icon className="size-4" />
                     </div>
@@ -214,7 +317,7 @@ const FontFamilyButton = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button className={cn("h-7 w-[120px] shrink-0 flex items-center justify-between rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm")}>
+                <button className={cn("h-7 w-[70px] shrink-0 flex items-center justify-between rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm")}>
                     <span className="truncate">
                         {editor?.getAttributes("textStyle").fontFamily || "Arial"}
                     </span>
@@ -247,7 +350,7 @@ const HighlightColorButton = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button className={cn("h-7 w-[70px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
+                <button className={cn("h-7 w-[50px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
                     <div className="flex items-center gap-x-2">
                         <HighlighterIcon className="size-4" />
                     </div>
@@ -274,10 +377,10 @@ const TextColorButton = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button className={cn("h-7 w-[70px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
+                <button className={cn("h-7 w-[40px] shrink-0 flex items-center rounded-sm justify-between hover:bg-neutral-200/80 px-2 overflow-hidden text-sm")}>
                     <div className="flex items-center gap-x-2">
                         <span className="text-base font-medium" style={{ color: currentValue }}>A</span>
-                        <div className="h-3 w-3 rounded-sm border border-neutral-200" style={{ backgroundColor: currentValue }}></div>
+
                     </div>
                     <ChevronDownIcon className="h-4 w-4 shrink-0 opacity-50" />
                 </button>
@@ -461,7 +564,7 @@ export const Toolbar = () => {
         <Separator orientation="vertical" className=" h-6 bg-neutral-300" />
         <HeadingLevelButton />
         <Separator orientation="vertical" className=" h-6 bg-neutral-300" />
-        {/* todo font size */}
+        <FontSizeButton />
         <Separator orientation="vertical" className=" h-6 bg-neutral-300" />
         {sections[1].map((item) => (
             <ToolbarButton key={item.label} {...item} />
@@ -471,9 +574,8 @@ export const Toolbar = () => {
         <Separator orientation="vertical" className=" h-6 bg-neutral-300" />
         <LinkButton />
         <ImageButton />
-        <AlignButton/>
-        {/* TODO LINE */}
-        {/* TODO LINE HEIGHT */}
+        <AlignButton />
+        <LineHeightButton/>
         <ListButton />
         {sections[2].map((item) => (
             <ToolbarButton key={item.label} {...item} />
