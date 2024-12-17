@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+📝 Welcome to Docs! 🌟
 
-## Getting Started
+A collaborative, feature-rich Google Docs clone for creating, editing, and sharing documents in real-time.
 
-First, run the development server:
+🌟 Features at a Glance
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Real-Time Collaboration 🤝
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Powered by Liveblocks for smooth, instant multi-user editing.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+User Authentication 🔐
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Seamlessly integrated with Clerk for secure user login and management.
 
-## Learn More
+Scalable Data Management 📂
 
-To learn more about Next.js, take a look at the following resources:
+Built on Convex, ensuring efficient and reliable backend storage and operations.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Rich Text Editing ✍️
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Offers extensive editing options: formatting, media embedding, tables, and more!
 
-## Deploy on Vercel
+Auto-Saving & Version Control 📜
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Save work automatically and access document history anytime.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🛠️ Tech Stack
+
+🌐 Frontend
+
+✨ Next.js – Build dynamic and interactive user interfaces.
+🎨 TailwindCSS – Design beautiful, responsive layouts with ease.
+
+🛠️ Backend
+
+📂 Convex – Simplified and scalable backend data management.
+⚡ Clerk – Handle users logic efficiently.
+
+🔄 Real-Time Collaboration
+
+🔗 Liveblocks – Power real-time collaboration and updates seamlessly.
+
+🔒 Authentication
+
+🔐 Clerk – Secure and user-friendly authentication for modern apps.
+
+	
+
+
+🌟 Happy Collaborating! ✨

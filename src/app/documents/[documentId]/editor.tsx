@@ -1,7 +1,9 @@
 'use client'
+import { useStorage } from '@liveblocks/react'
 import TextAlign from '@tiptap/extension-text-align'
 import TaskItem from '@tiptap/extension-task-item'
 import Link from '@tiptap/extension-link'
+import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 import TaskList from '@tiptap/extension-task-list'
 import { Color } from '@tiptap/extension-color'
 import Highlight from '@tiptap/extension-highlight'
@@ -20,9 +22,15 @@ import TextStyle from '@tiptap/extension-text-style'
 import { FontSizeExtension } from '@/extensions/font-size'
 import { LineHeightExtension } from '@/extensions/line-height'
 import { Ruler } from './Ruler'
-export function Editor() {
+import { Threads } from './threads';
+interface EditorProps{
+  intialContent?: string | undefined
+}
+export function Editor({ intialContent }: EditorProps) {
+  const leftMargin = useStorage((root)=>root.leftMargin)
+  const rightMargin = useStorage((root)=>root.rightMargin)
   const { setEditor } = useEditorStore()
-
+  const liveblocks = useLiveblocksExtension({initialContent: intialContent,offlineSupport_experimental: true})
   const editor = useEditor({
     immediatelyRender: false,
     onCreate: ({ editor }) => {
@@ -49,7 +57,7 @@ export function Editor() {
     onContentError: ({ editor }) => {
       setEditor(editor)
     },
-    extensions: [StarterKit, LineHeightExtension.configure({ types: ['paragraph', 'heading'],defaultLineHeight: 'normal' }), FontSizeExtension, TextAlign.configure({ types: ['heading', 'paragraph'] }), Color, Link.configure({openOnClick: false,autolink: true,defaultProtocol: 'https'}), Highlight.configure({ multicolor: true }), FontFamily, TextStyle, Underline, Image, ImageResize, TaskItem.configure({ nested: true }), TaskList, Table.configure({
+    extensions: [StarterKit.configure({history: false}), liveblocks, LineHeightExtension.configure({ types: ['paragraph', 'heading'],defaultLineHeight: 'normal' }), FontSizeExtension, TextAlign.configure({ types: ['heading', 'paragraph'] }), Color, Link.configure({openOnClick: false,autolink: true,defaultProtocol: 'https'}), Highlight.configure({ multicolor: true }), FontFamily, TextStyle, Underline, Image, ImageResize, TaskItem.configure({ nested: true }), TaskList, Table.configure({
       resizable: true,
     }),
       TableRow,
@@ -58,33 +66,17 @@ export function Editor() {
     ],
     editorProps: {
       attributes: {
-        style: "padding-left: 56px; padding-right: 56px;",
+        style: `padding-left: ${leftMargin ?? 56}px; padding-right: ${rightMargin ?? 56}px;`,
         class: 'focus:outline-none print:border-0 bg-white border-[#c7c7c7] flex flex-col min-h-[1054px] w-[816px] pt-10 pr-14 pb-10 cursor-text',
       }
     },
-    content: `
-        <img style="width: 50%" src="https://w0.peakpx.com/wallpaper/666/961/HD-wallpaper-anime-jujutsu-kaisen-satoru-gojo.jpg" />
-        <table>
-          <tbody>
-            <tr>
-              <th>Name</th>
-              <th colspan="3">Description</th>
-            </tr>
-            <tr>
-              <td>Cyndi Lauper</td>
-              <td>Singer</td>
-              <td>Songwriter</td>
-              <td>Actress</td>
-            </tr>
-          </tbody>
-        </table>
-      `,
   })
   return (
     <div className='size-full  overflow-x-auto bg-[#F9FBFD] px-4 print:p-0 print:bg-white print:overflow-visible'>
       <Ruler/>
       <div className='min-w-max flex justify-center w-[816px] py-4 print:py-0 mx-auto print:w-full print:min-w-0'>
         <EditorContent editor={editor} />
+        <Threads editor={editor}/>
       </div>
     </div>
   )

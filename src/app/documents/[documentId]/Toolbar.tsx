@@ -10,7 +10,6 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
 const LineHeightButton = () => {
     const { editor } = useEditorStore()
     const lineHeights = [
@@ -201,12 +200,12 @@ const AlignButton = () => {
 const ImageButton = () => {
     const { editor } = useEditorStore()
     const [isDialogOpen, setIsDialogOpen] = useState(false)
-    const [value, setValue] = useState("")
     const [ImageUrl, setImageUrl] = useState("")
+
     const onChange = (src: string) => {
         editor?.chain().focus().setImage({ src }).run()
-        setValue("")
     }
+
     const onUpload = () => {
         const input = document.createElement("input")
         input.type = "file"
@@ -220,6 +219,7 @@ const ImageButton = () => {
         }
         input.click()
     }
+
     const handleImageUrlSubmit = () => {
         if (ImageUrl) {
             onChange(ImageUrl)
@@ -227,6 +227,7 @@ const ImageButton = () => {
             setIsDialogOpen(false)
         }
     };
+
     return (
         <>
             <DropdownMenu>
@@ -252,7 +253,12 @@ const ImageButton = () => {
                     <DialogHeader>
                         <DialogTitle>Insert image url</DialogTitle>
                     </DialogHeader>
-                    <Input value={ImageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://example.com" onKeyDown={(e) => e.key === "Enter" && handleImageUrlSubmit()} />
+                    <Input 
+                        value={ImageUrl} 
+                        onChange={(e) => setImageUrl(e.target.value)} 
+                        placeholder="https://example.com" 
+                        onKeyDown={(e) => e.key === "Enter" && handleImageUrlSubmit()} 
+                    />
                     <DialogFooter>
                         <Button onClick={handleImageUrlSubmit}>Insert</Button>
                     </DialogFooter>
@@ -481,7 +487,6 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive }: ToolbarButtonProps) =>
 }
 export const Toolbar = () => {
     const { editor } = useEditorStore()
-    console.log("Toolbar editor: ", editor)
     const sections: { label: string, icon: LucideIcon, onClick: () => void, isActive?: boolean }[][] = [
         [
             {
@@ -534,9 +539,9 @@ export const Toolbar = () => {
                 label: "Comment",
                 icon: MessageSquarePlusIcon,
                 onClick: () => {
-                    console.log("Todo comment")
+                    editor?.chain().focus().addPendingComment().run()
                 },
-                // isActive todo
+                isActive: editor?.isActive("liveblocksCommentMark"),
             },
             {
                 label: "List todo",
