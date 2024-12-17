@@ -32,6 +32,7 @@ export function Editor({ intialContent }: EditorProps) {
   const { setEditor } = useEditorStore()
   const liveblocks = useLiveblocksExtension({initialContent: intialContent,offlineSupport_experimental: true})
   const editor = useEditor({
+    autofocus: true,
     immediatelyRender: false,
     onCreate: ({ editor }) => {
       setEditor(editor)
